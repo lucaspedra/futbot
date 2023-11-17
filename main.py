@@ -46,16 +46,17 @@ parse_json_stats_equipos = json.loads(data_stats_equipos)
 
 #jugador_pichichi = parse_json_stats_equipos[0]['PlayerSeasons'][184]['Name']
 
-for i in range(0, 17, +1):
-    equipo_stats = parse_json_stats_equipos[0]["TeamSeasons"][i]["Name"]
-    equipo_stats_goles = parse_json_stats_equipos[0]["TeamSeasons"][i]["Score"]
-    print(equipo_stats )
 
-async def laliga(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    for i in range(0, 17, +1):
-    equipo_stats = parse_json_stats_equipos[0]["TeamSeasons"][i]["Name"]
-    equipo_stats_goles = parse_json_stats_equipos[0]["TeamSeasons"][i]["Score"]
-        context.bot.send_message(chat_id=update.effective_chat.id, text=equipo_stats )
+#for i in range(0, 17, +1):
+   # equipo_stats = parse_json_stats_equipos[0]["TeamSeasons"][i]["Name"]
+   # equipo_stats_goles = parse_json_stats_equipos[0]["TeamSeasons"][i]["Score"]
+   # print(equipo_stats )
+
+#async def laliga(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+  #  for i in range(0, 17, +1):
+   # equipo_stats = parse_json_stats_equipos[0]["TeamSeasons"][i]["Name"]
+   # equipo_stats_goles = parse_json_stats_equipos[0]["TeamSeasons"][i]["Score"]
+ #       context.bot.send_message(chat_id=update.effective_chat.id, text=equipo_stats )
 
 
 
@@ -130,9 +131,10 @@ if __name__ == '__main__':
     pichichi_handler = CommandHandler('pichichi', pichichi)
     application.add_handler(pichichi_handler)
 
+
     #laliga
-    laliga_handler = CommandHandler('laliga', laliga)
-    application.add_handler(laliga_handler)
+    #laliga_handler = CommandHandler('laliga', laliga)
+    #application.add_handler(laliga_handler)
 
 
 
