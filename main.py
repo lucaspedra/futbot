@@ -74,7 +74,7 @@ parse_json_API_lesionados = json.loads(data_API_lesionados)
 #Dia formatado d/m/a
 ahora = datetime.now()
 
-año = ahora.strftime("%Y")
+ano = ahora.strftime("%Y")
 
 mes = ahora.strftime("%m")
 
