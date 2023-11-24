@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ##import telegram.ext
 
 ##from typing import Final
@@ -13,12 +14,17 @@
 
 import logging
 from telegram import Update
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackContext
 from datetime import datetime
 
 #API's
 import requests
 import json
+
+#
+# Conexión de APIS
+#
+
 
 #API de Partidos
 response_API = requests.get('https://api.sportsdata.io/v4/soccer/scores/json/SchedulesBasic/liga/2024?key=2243fc17850844ae8e464b01e260795c')
@@ -44,19 +50,22 @@ equipos_stats_API = requests.get('https://api.sportsdata.io/v4/soccer/scores/jso
 data_stats_equipos = equipos_stats_API.text
 parse_json_stats_equipos = json.loads(data_stats_equipos)
 
-#jugador_pichichi = parse_json_stats_equipos[0]['PlayerSeasons'][184]['Name']
+#API stats equipos mejorada
+equipos_stats_API_mejorada = requests.get('https://api.sportsdata.io/v4/soccer/scores/json/Standings/liga/2024?key=2243fc17850844ae8e464b01e260795c')
+data_stats_equipos_mejorada = equipos_stats_API_mejorada.text
+parse_json_stats_equipos_mejorada = json.loads(data_stats_equipos_mejorada)
+
+#API odds 
+API_odds = requests.get('https://api.the-odds-api.com/v4/sports/soccer/odds/?apiKey=78dd1b7f48ef9c786df6a6add154c41e&regions=eu&markets=h2h')
+data_API_odds = API_odds.text
+parse_json_API_odds = json.loads(data_API_odds)
+
+#API Lesionados
+API_lesionados = requests.get('https://api.sportsdata.io/v4/soccer/projections/json/InjuredPlayers/liga?key=2243fc17850844ae8e464b01e260795c')
+data_API_lesionados = API_lesionados.text
+parse_json_API_lesionados = json.loads(data_API_lesionados)
 
 
-#for i in range(0, 17, +1):
-   # equipo_stats = parse_json_stats_equipos[0]["TeamSeasons"][i]["Name"]
-   # equipo_stats_goles = parse_json_stats_equipos[0]["TeamSeasons"][i]["Score"]
-   # print(equipo_stats )
-
-#async def laliga(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-  #  for i in range(0, 17, +1):
-   # equipo_stats = parse_json_stats_equipos[0]["TeamSeasons"][i]["Name"]
-   # equipo_stats_goles = parse_json_stats_equipos[0]["TeamSeasons"][i]["Score"]
- #       context.bot.send_message(chat_id=update.effective_chat.id, text=equipo_stats )
 
 
 
@@ -79,33 +88,191 @@ logging.basicConfig(
     level=logging.INFO
 )
 
+#
+# Mensage del bot
+#
+
     #Hola
 async def hola(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="Hola, soy un bot! \n¿Como te puedo ayudar?")
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="Hola👋, soy un bot!🤖 \n¿Como te puedo ayudar?\n/comandos para mostrar todos los comandos!")
 
     #Comandos
 async def comandos(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="Lista de Comandos:\n/hola\n/comandos\n/fecha\n/partido")
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="🆘 Lista de Comandos 🆘\n\n/hola\n/comandos\n/fecha\n/partidos\n/pichichi\n/laliga\n/resultados\n/asistencias\n/odds\n/lesionados")
 
     #Fecha
 async def fecha(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="La fecha de hoy es: " +fechahoy)
 
     #Partidos
-async def partido(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="Próximo Partido : " +equipo1+ " vs " +equipo2  )
-    #await context.bot.send_message(chat_id=update.effective_chat.id, text=equipo1)
-    #await context.bot.send_message(chat_id=update.effective_chat.id, text="vs")
-    #await context.bot.send_message(chat_id=update.effective_chat.id, text=equipo2)
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="Fecha del próximo partido :" +fecha_partido)
+async def partidos(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    current_datetime = datetime.now()
+
+    next_matches_info = []
+
+    for i, match in enumerate(parse_json):
+        match_datetime_str = match.get('DateTime')
+        if match_datetime_str:
+            match_datetime = datetime.strptime(match_datetime_str, '%Y-%m-%dT%H:%M:%S')
+            if match_datetime > current_datetime:
+                equipo1 = match['AwayTeamName']
+                equipo2 = match['HomeTeamName']
+                fecha_partido = match_datetime.strftime('%d/%m/%Y %H:%M:%S')
+
+               
+                next_matches_info.append(f"Partido: {equipo1} 🆚 {equipo2}\nFecha del partido: {fecha_partido} ⏰")
+
+                
+                if len(next_matches_info) == 5:
+                    break
+
+    if next_matches_info:
+       
+        message_text = "\n\n".join(next_matches_info)
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="🔜⚽️ Próximos 5 partidos de LaLiga ⚽️🔜")
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
+    else:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="No hay partidos programados en el futuro cercano.")
+
 
     #Pichichi
-async def pichichi(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="El jugador con mas goles en LaLiga es : "+jugador_pichichi+ " \nEquipo : " +equipo_pichichi+ " \nGoles : "+str(goles_pichichi))
+async def pichichi(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    pichichis = sorted(parse_json_jugadores[0]['PlayerSeasons'], key=lambda x: x['Goals'], reverse=True)[:10]
+
+    
+    message_text = ""
+
+    for rank, jugador in enumerate(pichichis, start=1):
+        jugador_pichichi = jugador['Name']
+        equipo_pichichi = jugador['Team']
+        goles_pichichi = jugador['Goals']
+
+        
+        message_text +=f'{rank}º {jugador_pichichi}\nEquipo: {equipo_pichichi}\nGoles: {goles_pichichi}\n\n'
+
+    # enviar mensage
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="⚽️ Lista de Goleadores de LaLiga ⚽️")
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
+
 
      #laliga
-#async def laliga(update: Update, context: ContextTypes.DEFAULT_TYPE):
- #   await context.bot.send_message(chat_id=update.effective_chat.id, text="")
+async def laliga(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    equipo_por_puntos = sorted(parse_json_stats_equipos_mejorada[0]["Standings"], key=lambda x: x["Points"], reverse=True)
+    processed_teams = set()
+    message_text = ""
+    rank = 1
+    for equipo in equipo_por_puntos:
+        equipo_stats = equipo["Name"]
+        equipo_stats_points = equipo["Points"]
+        equipo_stats_partidos = equipo["Games"]
+        equipo_stats_vitorias = equipo["Wins"]
+        equipo_stats_empates = equipo["Draws"]
+        equipo_stats_derrotas = equipo["Losses"]
+        equipo_stats_goles_marcados = equipo["GoalsScored"]
+        equipo_stats_goles_contra = equipo["GoalsAgainst"]
+        equipo_stats_saldo_goles = equipo["GoalsDifferential"]
+
+        if equipo_stats not in processed_teams:
+            message_text += f'{rank}º {equipo_stats}\nPJ: {equipo_stats_partidos}|VIT: {equipo_stats_vitorias}|E: {equipo_stats_empates}|DER: {equipo_stats_derrotas}|GM: {equipo_stats_goles_marcados}|GC: {equipo_stats_goles_contra}|SG: {equipo_stats_saldo_goles}|Pts: {equipo_stats_points}\n\n'
+            processed_teams.add(equipo_stats)
+            rank += 1
+
+    # Send the accumulated message
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="👑👑 Tabla de clasificación de LaLiga 👑👑")
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
+
+    #Resultados
+async def resultados(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    current_datetime = datetime.now()
+
+    # Encuentra el index del proximo partido baseado en la fecha y el horario
+    next_match_index = None
+    for i, match in enumerate(parse_json):
+        match_datetime_str = match.get('DateTime')
+        if match_datetime_str:
+            match_datetime = datetime.strptime(match_datetime_str, '%Y-%m-%dT%H:%M:%S')
+            if match_datetime > current_datetime:
+                next_match_index = i
+                break
+
+    if next_match_index is not None:
+        # Extrae informacion sobre los ultimos 10 partidos
+        last_10_games_info = []
+        for i in range(next_match_index - 10, next_match_index):
+            if i >= 0:
+                home_team = parse_json[i]['HomeTeamName']
+                away_team = parse_json[i]['AwayTeamName']
+                score_home = parse_json[i]['HomeTeamScore']
+                score_away = parse_json[i]['AwayTeamScore']
+
+                game_info = f"Partido : {home_team} 🆚 {away_team}\nResultado: {score_home}-{score_away}"
+                last_10_games_info.append(game_info)
+
+        # Informacion sobre todos los partidos
+        message_text = "\n".join(last_10_games_info[::-1])  # Lista al reves para mostrar los ultimos partidos en primero
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
+
+    #Asistencias
+async def asistencias(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    jugador_assists = sorted(parse_json_jugadores[0]['PlayerSeasons'], key=lambda x: x['Assists'], reverse=True)[:10]
+
+    
+    message_text = ""
+
+    for rank, assists in enumerate(jugador_assists, start=1):
+        jugador_asistencias = assists['Name']
+        equipo_asistencias = assists['Team']
+        asistencias_asistencias = assists['Assists']
+
+        
+        message_text += f'{rank}º {jugador_asistencias}\nEquipo: {equipo_asistencias}\nAsistencias: {asistencias_asistencias}\n\n'
+
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="🤵 Lista de Asistentes de LaLiga 🤵")
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
+
+    #Odds
+async def odds(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    message_text = ""
+
+    for game in parse_json_API_odds:
+        odd_nombre1 = game["bookmakers"][3]["markets"][0]["outcomes"][0]["name"]
+        odd_equipo1 = game["bookmakers"][3]["markets"][0]["outcomes"][0]["price"]
+        odd_nombre2 = game["bookmakers"][3]["markets"][0]["outcomes"][1]["name"]
+        odd_equipo2 = game["bookmakers"][3]["markets"][0]["outcomes"][1]["price"]
+        odd_empate = game["bookmakers"][3]["markets"][0]["outcomes"][2]["price"]
+        casa_apuesta = game["bookmakers"][3]["title"]
+
+        message_text += f'🎰🍀Odds de los partidos de hoy en: {casa_apuesta}\n{odd_nombre1} 🆚 {odd_nombre2}\n| 1️⃣ | | ✖️ | | 2️⃣ | \n|{odd_equipo1}| |{odd_empate}| |{odd_equipo2}|\n\n'
+
+    if message_text:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="🎰🍀🤑 Odds de las casa de apuestas 🤑🍀🎰")
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
+    else:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="No hay partidos programados para hoy.")
+
+#Lesionados
+import random
+
+async def lesionados(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    random_lesionado = random.choice(parse_json_API_lesionados)
+
+    lesionados_nombre = random_lesionado["CommonName"]
+    lesionados_fecha_str = random_lesionado["InjuryStartDate"]
+    lesionados_fecha = datetime.strptime(lesionados_fecha_str, '%Y-%m-%dT%H:%M:%S')
+    lesionados_fecha_formatted = lesionados_fecha.strftime('%d/%m/%Y')
+    lesionados_foto = random_lesionado["PhotoUrl"]
+
+    message_text = f'🚑 Jugadores Lesionados 🚑 \n\nJugador : {lesionados_nombre}\nFecha de lesión : {lesionados_fecha_formatted}\nFoto del Jugador : {lesionados_foto}\n\nQuieres ver otro jugador? /lesionados'
+
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
+
+
+
+
+
+#
+# Comando introducido por el usuario
+#
 
 
 if __name__ == '__main__':
@@ -124,21 +291,32 @@ if __name__ == '__main__':
     application.add_handler(fecha_handler)
 
     #Partido
-    partido_handler = CommandHandler('partido', partido)
-    application.add_handler(partido_handler)
+    partidos_handler = CommandHandler('partidos', partidos)
+    application.add_handler(partidos_handler)
 
     #Pichichi
     pichichi_handler = CommandHandler('pichichi', pichichi)
     application.add_handler(pichichi_handler)
 
-
     #laliga
-    #laliga_handler = CommandHandler('laliga', laliga)
-    #application.add_handler(laliga_handler)
+    laliga_handler = CommandHandler('laliga', laliga)
+    application.add_handler(laliga_handler)
 
+    #Resultados
+    resultados_handler = CommandHandler('resultados', resultados)
+    application.add_handler(resultados_handler)
 
+    #Asistencias
+    asistencias_handler = CommandHandler('asistencias', asistencias)
+    application.add_handler(asistencias_handler)
 
+    #Odds
+    odds_handler = CommandHandler('odds', odds)
+    application.add_handler(odds_handler)
 
+    #Lesionados
+    lesionados_handler = CommandHandler('lesionados', lesionados)
+    application.add_handler(lesionados_handler)
 
 
 
