@@ -1,24 +1,26 @@
 # -*- coding: utf-8 -*-
-##import telegram.ext
+# import telegram.ext
 
-##from typing import Final
-##from telegram import Update
-##from telegram.ext import Apllication, CommandHandler, filters, ContextTypes
+# from typing import Final
+# from telegram import Update
+# from telegram.ext import Apllication, CommandHandler, filters, ContextTypes
 
 
-##TOKEN: Final  = '6985250842:AAFVfBqd-vKh0UqI6myyeV4GoSr5Yojq8vk'
-##BOT_USERNAME: Final = '@futboldiario_bot'
+# TOKEN: Final  = '6985250842:AAFVfBqd-vKh0UqI6myyeV4GoSr5Yojq8vk'
+# BOT_USERNAME: Final = '@futboldiario_bot'
 
-##async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-##    await update.message.reply_text("¡Hola, Bienvenido!")
+# async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+# await update.message.reply_text("¡Hola, Bienvenido!")
 
+from datetime import datetime, timedelta
+import random
 import logging
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackContext
 from telegram.constants import ParseMode
 from datetime import datetime
 
-#API's
+# API's
 import requests
 import json
 
@@ -26,104 +28,115 @@ import json
 # Conexión de APIS
 #
 
-## LA LIGA
+# LA LIGA
 
 
-#API de Partidos básica
-response_API = requests.get('https://api.sportsdata.io/v4/soccer/scores/json/SchedulesBasic/liga/2024?key=ca27f55a3e214fafb7c8d98721b170d0')
-#print(response_API.status_code)
+# API de Partidos básica
+response_API = requests.get(
+    'https://api.sportsdata.io/v4/soccer/scores/json/SchedulesBasic/liga/2024?key=ca27f55a3e214fafb7c8d98721b170d0')
+# print(response_API.status_code)
 data = response_API.text
 parse_json = json.loads(data)
 equipo1 = parse_json[1]['AwayTeamName']
 equipo2 = parse_json[1]['HomeTeamName']
 fecha_partido = parse_json[1]['DateTime']
 
-#API de Jugadores
-jugadores_API = requests.get('https://api.sportsdata.io/v4/soccer/stats/json/PlayerSeasonStats/liga/2024?key=ca27f55a3e214fafb7c8d98721b170d0')
-#print(response_API.status_code)
+# API de Jugadores
+jugadores_API = requests.get(
+    'https://api.sportsdata.io/v4/soccer/stats/json/PlayerSeasonStats/liga/2024?key=ca27f55a3e214fafb7c8d98721b170d0')
+# print(response_API.status_code)
 data_jugadores = jugadores_API.text
 parse_json_jugadores = json.loads(data_jugadores)
 jugador_pichichi = parse_json_jugadores[0]['PlayerSeasons'][184]['Name']
 equipo_pichichi = parse_json_jugadores[0]['PlayerSeasons'][184]['Team']
 goles_pichichi = parse_json_jugadores[0]['PlayerSeasons'][184]['Goals']
 
-#API de stats de equipos
-equipos_stats_API = requests.get('https://api.sportsdata.io/v4/soccer/scores/json/TeamSeasonStats/liga/2024?key=ca27f55a3e214fafb7c8d98721b170d0')
-#print(response_API.status_code)
+# API de stats de equipos
+equipos_stats_API = requests.get(
+    'https://api.sportsdata.io/v4/soccer/scores/json/TeamSeasonStats/liga/2024?key=ca27f55a3e214fafb7c8d98721b170d0')
+# print(response_API.status_code)
 data_stats_equipos = equipos_stats_API.text
 parse_json_stats_equipos = json.loads(data_stats_equipos)
 
-#API stats equipos mejorada_LaLiga
-equipos_stats_API_mejorada = requests.get('https://api.sportsdata.io/v4/soccer/scores/json/Standings/liga/2024?key=ca27f55a3e214fafb7c8d98721b170d0')
+# API stats equipos mejorada_LaLiga
+equipos_stats_API_mejorada = requests.get(
+    'https://api.sportsdata.io/v4/soccer/scores/json/Standings/liga/2024?key=ca27f55a3e214fafb7c8d98721b170d0')
 data_stats_equipos_mejorada = equipos_stats_API_mejorada.text
 parse_json_stats_equipos_mejorada = json.loads(data_stats_equipos_mejorada)
 
-#API odds 
-API_odds = requests.get('https://api.the-odds-api.com/v4/sports/soccer/odds/?apiKey=78dd1b7f48ef9c786df6a6add154c41e&regions=eu&markets=h2h')
+# API odds
+API_odds = requests.get(
+    'https://api.the-odds-api.com/v4/sports/soccer/odds/?apiKey=78dd1b7f48ef9c786df6a6add154c41e&regions=eu&markets=h2h')
 data_API_odds = API_odds.text
 parse_json_API_odds = json.loads(data_API_odds)
 
-#API Lesionados
-API_lesionados = requests.get('https://api.sportsdata.io/v4/soccer/projections/json/InjuredPlayers/liga?key=ca27f55a3e214fafb7c8d98721b170d0')
+# API Lesionados
+API_lesionados = requests.get(
+    'https://api.sportsdata.io/v4/soccer/projections/json/InjuredPlayers/liga?key=ca27f55a3e214fafb7c8d98721b170d0')
 data_API_lesionados = API_lesionados.text
 parse_json_API_lesionados = json.loads(data_API_lesionados)
 
 
+# PREMIER LEAGUE
 
 
-##PREMIER LEAGUE
-
-
-#API stats equipos mejorada_Premier
-equipos_stats_API_premier = requests.get('https://api.sportsdata.io/v4/soccer/scores/json/Standings/EPL/2024?key=ca27f55a3e214fafb7c8d98721b170d0')
+# API stats equipos mejorada_Premier
+equipos_stats_API_premier = requests.get(
+    'https://api.sportsdata.io/v4/soccer/scores/json/Standings/EPL/2024?key=ca27f55a3e214fafb7c8d98721b170d0')
 data_stats_equipos_premier = equipos_stats_API_premier.text
 parse_json_stats_equipos_premier = json.loads(data_stats_equipos_premier)
 
-#API de stats de equipos básica premier
-response_API_premier = requests.get('https://api.sportsdata.io/v4/soccer/scores/json/SchedulesBasic/EPL/2024?key=ca27f55a3e214fafb7c8d98721b170d0')
-#print(response_API.status_code)
+# API de stats de equipos básica premier
+response_API_premier = requests.get(
+    'https://api.sportsdata.io/v4/soccer/scores/json/SchedulesBasic/EPL/2024?key=ca27f55a3e214fafb7c8d98721b170d0')
+# print(response_API.status_code)
 data_premier = response_API_premier.text
 parse_json_premier = json.loads(data_premier)
 equipo1 = parse_json_premier[1]['AwayTeamName']
 equipo2 = parse_json_premier[1]['HomeTeamName']
 fecha_partido = parse_json_premier[1]['DateTime']
 
-#API de Jugadores Premier League
-jugadores_API_premier = requests.get('https://api.sportsdata.io/v4/soccer/stats/json/PlayerSeasonStats/EPL/2024?key=ca27f55a3e214fafb7c8d98721b170d0')
-#print(response_API.status_code)
+# API de Jugadores Premier League
+jugadores_API_premier = requests.get(
+    'https://api.sportsdata.io/v4/soccer/stats/json/PlayerSeasonStats/EPL/2024?key=ca27f55a3e214fafb7c8d98721b170d0')
+# print(response_API.status_code)
 data_jugadores_premier = jugadores_API_premier.text
 parse_json_jugadores_premier = json.loads(data_jugadores_premier)
 jugador_pichichi_premier = parse_json_jugadores_premier[0]['PlayerSeasons'][184]['Name']
 equipo_pichichi_premier = parse_json_jugadores_premier[0]['PlayerSeasons'][184]['Team']
 goles_pichichi_premier = parse_json_jugadores_premier[0]['PlayerSeasons'][184]['Goals']
 
-#API Lesionados_premier
-API_lesionados_premier = requests.get('https://api.sportsdata.io/v4/soccer/projections/json/InjuredPlayers/EPL?key=ca27f55a3e214fafb7c8d98721b170d0')
+# API Lesionados_premier
+API_lesionados_premier = requests.get(
+    'https://api.sportsdata.io/v4/soccer/projections/json/InjuredPlayers/EPL?key=ca27f55a3e214fafb7c8d98721b170d0')
 data_API_lesionados_premier = API_lesionados_premier.text
 parse_json_API_lesionados_premier = json.loads(data_API_lesionados_premier)
 
 
-##CHAMPIONS LEAGUE
+# CHAMPIONS LEAGUE
 
 
-#API stats equipos mejorada UCL
-equipos_stats_API_ucl = requests.get('https://api.sportsdata.io/v4/soccer/scores/json/Standings/UCL/2024?key=ca27f55a3e214fafb7c8d98721b170d0')
+# API stats equipos mejorada UCL
+equipos_stats_API_ucl = requests.get(
+    'https://api.sportsdata.io/v4/soccer/scores/json/Standings/UCL/2024?key=ca27f55a3e214fafb7c8d98721b170d0')
 data_stats_equipos_ucl = equipos_stats_API_ucl.text
 parse_json_stats_equipos_ucl = json.loads(data_stats_equipos_ucl)
 
 
-#API de stats de equipos básica UCL
-response_API_ucl = requests.get('https://api.sportsdata.io/v4/soccer/scores/json/SchedulesBasic/UCL/2024?key=ca27f55a3e214fafb7c8d98721b170d0')
-#print(response_API.status_code)
+# API de stats de equipos básica UCL
+response_API_ucl = requests.get(
+    'https://api.sportsdata.io/v4/soccer/scores/json/SchedulesBasic/UCL/2024?key=ca27f55a3e214fafb7c8d98721b170d0')
+# print(response_API.status_code)
 data_ucl = response_API_ucl.text
 parse_json_ucl = json.loads(data_ucl)
 equipo1 = parse_json_ucl[1]['AwayTeamName']
 equipo2 = parse_json_ucl[1]['HomeTeamName']
 fecha_partido_ucl = parse_json_ucl[1]['DateTime']
 
-#API de Jugadores UCL
-jugadores_API_ucl = requests.get('https://api.sportsdata.io/v4/soccer/stats/json/PlayerSeasonStats/UCL/2024?key=ca27f55a3e214fafb7c8d98721b170d0')
-#print(response_API.status_code)
+# API de Jugadores UCL
+jugadores_API_ucl = requests.get(
+    'https://api.sportsdata.io/v4/soccer/stats/json/PlayerSeasonStats/UCL/2024?key=ca27f55a3e214fafb7c8d98721b170d0')
+# print(response_API.status_code)
 data_jugadores_ucl = jugadores_API_ucl.text
 parse_json_jugadores_ucl = json.loads(data_jugadores_ucl)
 jugador_pichichi_premier = parse_json_jugadores_ucl[0]['PlayerSeasons'][0]['Name']
@@ -131,16 +144,14 @@ equipo_pichichi_ucl = parse_json_jugadores_ucl[0]['PlayerSeasons'][0]['Team']
 goles_pichichi_ucl = parse_json_jugadores_ucl[0]['PlayerSeasons'][0]['Goals']
 
 
-#API Lesionados_UCL
-API_lesionados_ucl = requests.get('https://api.sportsdata.io/v4/soccer/projections/json/InjuredPlayers/EPL?key=ca27f55a3e214fafb7c8d98721b170d0')
+# API Lesionados_UCL
+API_lesionados_ucl = requests.get(
+    'https://api.sportsdata.io/v4/soccer/projections/json/InjuredPlayers/EPL?key=ca27f55a3e214fafb7c8d98721b170d0')
 data_API_lesionados_ucl = API_lesionados_ucl.text
 parse_json_API_lesionados_ucl = json.loads(data_API_lesionados_ucl)
 
 
-
-
-
-#Dia formatado d/m/a
+# Dia formatado d/m/a
 ahora = datetime.now()
 
 ano = ahora.strftime("%Y")
@@ -161,19 +172,27 @@ logging.basicConfig(
 # Mensage del bot
 #
 
-    #Hola
+# Hola
+
+
 async def hola(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="Hola👋, soy un bot!🤖 \n¿Como te puedo ayudar?\n/comandos para mostrar todos los comandos!")
 
-    #Comandos
+    # Comandos
+
+
 async def comandos(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="🆘  Lista de Comandos  🆘\n\n⚙️ Básicos ⚙️\n/hola\n/comandos\n/fecha\n\n🇪🇸 La Liga 🇪🇸\n/laliga\n/partidos\n/resultados\n/pichichi\n/asistencias\n/lesionados\n\n🇬🇧 Premier League 🇬🇧\n/premier\n/partidos_premier\n/resultados_premier\n/pichichi_premier\n/asistencias_premier\n/lesionados_premier\n\n🇪🇺 UEFA Champions League 🇪🇺\n/ucl\n/partidos_ucl\n/resultados_ucl\n/pichichi_ucl\n/asistencias_ucl\n/lesionados_ucl\n\n🎰 Odds 🎰\n/odds")
 
-    #Fecha
-async def fecha(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="La fecha de hoy es: " +fechahoy)
+    # Fecha
 
-    #Partidos
+
+async def fecha(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="La fecha de hoy es: " + fechahoy)
+
+    # Partidos
+
+
 async def partidos(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     current_datetime = datetime.now()
 
@@ -182,7 +201,8 @@ async def partidos(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     for i, match in enumerate(parse_json):
         match_datetime_str = match.get('DateTime')
         if match_datetime_str:
-            match_datetime = datetime.strptime(match_datetime_str, '%Y-%m-%dT%H:%M:%S')
+            match_datetime = datetime.strptime(
+                match_datetime_str, '%Y-%m-%dT%H:%M:%S')
             if match_datetime > current_datetime:
 
                 match_datetime += timedelta(hours=1)
@@ -191,27 +211,27 @@ async def partidos(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 equipo2 = match['HomeTeamName']
                 fecha_partido = match_datetime.strftime('%d/%m/%Y %H:%M')
 
-               
-                next_matches_info.append(f"Partido: {equipo1} 🆚 {equipo2}\nFecha del partido: {fecha_partido} ⏰")
+                next_matches_info.append(
+                    f"Partido: {equipo1} 🆚 {equipo2}\nFecha del partido: {fecha_partido} ⏰")
 
-                
                 if len(next_matches_info) == 10:
                     break
 
     if next_matches_info:
-       
+
         message_text = "\n\n".join(next_matches_info)
         await context.bot.send_message(chat_id=update.effective_chat.id, text="🔜⚽️ Próximos 10 partidos de LaLiga ⚽️🔜")
         await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
     else:
         await context.bot.send_message(chat_id=update.effective_chat.id, text="No hay partidos programados en el futuro cercano.")
 
+    # Pichichi
 
-    #Pichichi
+
 async def pichichi(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    pichichis = sorted(parse_json_jugadores[0]['PlayerSeasons'], key=lambda x: x['Goals'], reverse=True)[:10]
+    pichichis = sorted(
+        parse_json_jugadores[0]['PlayerSeasons'], key=lambda x: x['Goals'], reverse=True)[:10]
 
-    
     message_text = ""
 
     for rank, jugador in enumerate(pichichis, start=1):
@@ -219,17 +239,18 @@ async def pichichi(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         equipo_pichichi = jugador['Team']
         goles_pichichi = jugador['Goals']
 
-        
-        message_text +=f'{rank}º {jugador_pichichi}\nEquipo: {equipo_pichichi}\nGoles: {goles_pichichi}\n\n'
+        message_text += f'{rank}º {jugador_pichichi}\nEquipo: {equipo_pichichi}\nGoles: {goles_pichichi}\n\n'
 
     # enviar mensage
     await context.bot.send_message(chat_id=update.effective_chat.id, text="⚽️ Lista de Goleadores de LaLiga ⚽️")
     await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
 
+    # laliga
 
-     #laliga
+
 async def laliga(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    equipo_por_puntos = sorted(parse_json_stats_equipos_mejorada[0]["Standings"], key=lambda x: x["Points"], reverse=True)
+    equipo_por_puntos = sorted(
+        parse_json_stats_equipos_mejorada[0]["Standings"], key=lambda x: x["Points"], reverse=True)
     processed_teams = set()
     message_text = ""
     rank = 1
@@ -253,7 +274,9 @@ async def laliga(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await context.bot.send_message(chat_id=update.effective_chat.id, text="👑👑 Tabla de clasificación de LaLiga 👑👑")
     await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
 
-    #Resultados
+    # Resultados
+
+
 async def resultados(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     current_datetime = datetime.now()
 
@@ -262,7 +285,8 @@ async def resultados(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     for i, match in enumerate(parse_json):
         match_datetime_str = match.get('DateTime')
         if match_datetime_str:
-            match_datetime = datetime.strptime(match_datetime_str, '%Y-%m-%dT%H:%M:%S')
+            match_datetime = datetime.strptime(
+                match_datetime_str, '%Y-%m-%dT%H:%M:%S')
             if match_datetime > current_datetime:
                 next_match_index = i
                 break
@@ -281,15 +305,18 @@ async def resultados(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
                 last_10_games_info.append(game_info)
 
         # Informacion sobre todos los partidos
-        message_text = "\n".join(last_10_games_info[::-1])  # Lista al reves para mostrar los ultimos partidos en primero
+        # Lista al reves para mostrar los ultimos partidos en primero
+        message_text = "\n".join(last_10_games_info[::-1])
         await context.bot.send_message(chat_id=update.effective_chat.id, text="🥅 ⚽️ Últimos resultados de la LaLiga ⚽️ 🥅")
         await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
 
-    #Asistencias
-async def asistencias(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    jugador_assists = sorted(parse_json_jugadores[0]['PlayerSeasons'], key=lambda x: x['Assists'], reverse=True)[:10]
+    # Asistencias
 
-    
+
+async def asistencias(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    jugador_assists = sorted(
+        parse_json_jugadores[0]['PlayerSeasons'], key=lambda x: x['Assists'], reverse=True)[:10]
+
     message_text = ""
 
     for rank, assists in enumerate(jugador_assists, start=1):
@@ -297,13 +324,14 @@ async def asistencias(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         equipo_asistencias = assists['Team']
         asistencias_asistencias = assists['Assists']
 
-        
         message_text += f'{rank}º {jugador_asistencias}\nEquipo: {equipo_asistencias}\nAsistencias: {asistencias_asistencias}\n\n'
 
     await context.bot.send_message(chat_id=update.effective_chat.id, text="🤵 Lista de Asistentes de LaLiga 🤵")
     await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
 
-    #Odds
+    # Odds
+
+
 async def odds(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message_text = ""
 
@@ -323,15 +351,16 @@ async def odds(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await context.bot.send_message(chat_id=update.effective_chat.id, text="No hay partidos programados para hoy.")
 
-#Lesionados
-import random
+# Lesionados
+
 
 async def lesionados(update: Update, context: ContextTypes.DEFAULT_TYPE):
     random_lesionado = random.choice(parse_json_API_lesionados)
 
     lesionados_nombre = random_lesionado["CommonName"]
     lesionados_fecha_str = random_lesionado["InjuryStartDate"]
-    lesionados_fecha = datetime.strptime(lesionados_fecha_str, '%Y-%m-%dT%H:%M:%S')
+    lesionados_fecha = datetime.strptime(
+        lesionados_fecha_str, '%Y-%m-%dT%H:%M:%S')
     lesionados_fecha_formatted = lesionados_fecha.strftime('%d/%m/%Y')
     lesionados_foto = random_lesionado["PhotoUrl"]
 
@@ -339,9 +368,12 @@ async def lesionados(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
 
- #Premier
+ # Premier
+
+
 async def premier(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    equipo_por_puntos = sorted(parse_json_stats_equipos_premier[0]["Standings"], key=lambda x: x["Points"], reverse=True)
+    equipo_por_puntos = sorted(
+        parse_json_stats_equipos_premier[0]["Standings"], key=lambda x: x["Points"], reverse=True)
     processed_teams = set()
     message_text = ""
     rank = 1
@@ -365,9 +397,9 @@ async def premier(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await context.bot.send_message(chat_id=update.effective_chat.id, text="👑👑 Tabla de clasificación de la Premier League 👑👑")
     await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
 
+    # Resultados_Premier
 
 
-     #Resultados_Premier
 async def resultados_premier(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     current_datetime = datetime.now()
 
@@ -376,7 +408,8 @@ async def resultados_premier(update: Update, context: ContextTypes.DEFAULT_TYPE)
     for i, match in enumerate(parse_json_premier):
         match_datetime_str = match.get('DateTime')
         if match_datetime_str:
-            match_datetime = datetime.strptime(match_datetime_str, '%Y-%m-%dT%H:%M:%S')
+            match_datetime = datetime.strptime(
+                match_datetime_str, '%Y-%m-%dT%H:%M:%S')
             if match_datetime > current_datetime:
                 next_match_index = i
                 break
@@ -401,50 +434,53 @@ async def resultados_premier(update: Update, context: ContextTypes.DEFAULT_TYPE)
                 last_10_games_info.append(game_info)
 
         # Informacion sobre todos los partidos
-        message_text = "\n".join(last_10_games_info[::-1])  # Lista al reves para mostrar los ultimos partidos en primero
+        # Lista al reves para mostrar los ultimos partidos en primero
+        message_text = "\n".join(last_10_games_info[::-1])
         await context.bot.send_message(chat_id=update.effective_chat.id, text="🥅 ⚽️ Últimos resultados de la Premier League ⚽️ 🥅")
         await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
 
+    # Partidos_Premier
 
-    #Partidos_Premier
+
 async def partidos_premier(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        current_datetime = datetime.now()
+    current_datetime = datetime.now()
 
-        next_matches_info = []
+    next_matches_info = []
 
-        for i, match in enumerate(parse_json_premier):
-            match_datetime_str = match.get('DateTime')
-            if match_datetime_str:
-                match_datetime = datetime.strptime(match_datetime_str, '%Y-%m-%dT%H:%M:%S')
-                if match_datetime > current_datetime:
+    for i, match in enumerate(parse_json_premier):
+        match_datetime_str = match.get('DateTime')
+        if match_datetime_str:
+            match_datetime = datetime.strptime(
+                match_datetime_str, '%Y-%m-%dT%H:%M:%S')
+            if match_datetime > current_datetime:
 
-                    match_datetime += timedelta(hours=1)
+                match_datetime += timedelta(hours=1)
 
-                    equipo1 = match['AwayTeamName']
-                    equipo2 = match['HomeTeamName']
-                    fecha_partido = match_datetime.strftime('%d/%m/%Y %H:%M')
+                equipo1 = match['AwayTeamName']
+                equipo2 = match['HomeTeamName']
+                fecha_partido = match_datetime.strftime('%d/%m/%Y %H:%M')
 
-                
-                    next_matches_info.append(f"Partido: {equipo1} 🆚 {equipo2}\nFecha del partido: {fecha_partido} ⏰")
+                next_matches_info.append(
+                    f"Partido: {equipo1} 🆚 {equipo2}\nFecha del partido: {fecha_partido} ⏰")
+
+                if len(next_matches_info) == 10:
+                    break
+
+    if next_matches_info:
+
+        message_text = "\n\n".join(next_matches_info)
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="🔜⚽️ Próximos 10 partidos de la Premier League ⚽️🔜")
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
+    else:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="No hay partidos programados en el futuro cercano.")
+
+# Pichichi_Premier
 
 
-                    
-                    if len(next_matches_info) == 10:
-                        break
-
-        if next_matches_info:
-        
-            message_text = "\n\n".join(next_matches_info)
-            await context.bot.send_message(chat_id=update.effective_chat.id, text="🔜⚽️ Próximos 10 partidos de la Premier League ⚽️🔜")
-            await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
-        else:
-            await context.bot.send_message(chat_id=update.effective_chat.id, text="No hay partidos programados en el futuro cercano.")
-
-#Pichichi_Premier
 async def pichichi_premier(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    pichichis_premier = sorted(parse_json_jugadores_premier[0]['PlayerSeasons'], key=lambda x: x['Goals'], reverse=True)[:10]
+    pichichis_premier = sorted(
+        parse_json_jugadores_premier[0]['PlayerSeasons'], key=lambda x: x['Goals'], reverse=True)[:10]
 
-    
     message_text = ""
 
     for rank, jugador in enumerate(pichichis_premier, start=1):
@@ -452,19 +488,18 @@ async def pichichi_premier(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         equipo_pichichi_premier = jugador['Team']
         goles_pichichi_premier = jugador['Goals']
 
-        
-        message_text +=f'{rank}º {jugador_pichichi_premier}\nEquipo: {equipo_pichichi_premier}\nGoles: {goles_pichichi_premier}\n\n'
+        message_text += f'{rank}º {jugador_pichichi_premier}\nEquipo: {equipo_pichichi_premier}\nGoles: {goles_pichichi_premier}\n\n'
 
     # enviar mensage
     await context.bot.send_message(chat_id=update.effective_chat.id, text="⚽️ Lista de Goleadores de la Premier League ⚽️")
     await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
 
 
-#Asistencias_Premier
+# Asistencias_Premier
 async def asistencias_premier(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    jugador_assists_premier = sorted(parse_json_jugadores_premier[0]['PlayerSeasons'], key=lambda x: x['Assists'], reverse=True)[:10]
+    jugador_assists_premier = sorted(
+        parse_json_jugadores_premier[0]['PlayerSeasons'], key=lambda x: x['Assists'], reverse=True)[:10]
 
-    
     message_text = ""
 
     for rank, assists_premier in enumerate(jugador_assists_premier, start=1):
@@ -472,22 +507,22 @@ async def asistencias_premier(update: Update, context: ContextTypes.DEFAULT_TYPE
         equipo_asistencias_premier = assists_premier['Team']
         asistencias_asistencias_premier = assists_premier['Assists']
 
-        
         message_text += f'{rank}º {jugador_asistencias_premier}\nEquipo: {equipo_asistencias_premier}\nAsistencias: {asistencias_asistencias_premier}\n\n'
 
     await context.bot.send_message(chat_id=update.effective_chat.id, text="🤵 Lista de Asistentes de la Premier League 🤵")
     await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
 
 
-#Lesionados_Premier
-import random
+# Lesionados_Premier
+
 
 async def lesionados_premier(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    random_lesionado_premier= random.choice(parse_json_API_lesionados_premier)
+    random_lesionado_premier = random.choice(parse_json_API_lesionados_premier)
 
     lesionados_nombre = random_lesionado_premier["CommonName"]
     lesionados_fecha_str = random_lesionado_premier["InjuryStartDate"]
-    lesionados_fecha = datetime.strptime(lesionados_fecha_str, '%Y-%m-%dT%H:%M:%S')
+    lesionados_fecha = datetime.strptime(
+        lesionados_fecha_str, '%Y-%m-%dT%H:%M:%S')
     lesionados_fecha_formatted = lesionados_fecha.strftime('%d/%m/%Y')
     lesionados_foto = random_lesionado_premier["PhotoUrl"]
 
@@ -495,10 +530,11 @@ async def lesionados_premier(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
     await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
 
-
     ##  CHAMPIONS LEAGUE ##
 
-#UCL
+# UCL
+
+
 async def ucl(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     equipo_por_puntos_ucl = parse_json_stats_equipos_ucl[6]["Standings"]
 
@@ -507,10 +543,12 @@ async def ucl(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     for group in ucl_groups:
         # Filter equipos en el grupo
-        group_teams = [equipo for equipo in equipo_por_puntos_ucl if equipo["Group"] == f'Group {group}']
+        group_teams = [
+            equipo for equipo in equipo_por_puntos_ucl if equipo["Group"] == f'Group {group}']
 
         # Sort de equipos por numerode partidos en orden descendiente
-        sorted_teams_by_games = sorted(group_teams, key=lambda x: x["Games"], reverse=True)
+        sorted_teams_by_games = sorted(
+            group_teams, key=lambda x: x["Games"], reverse=True)
 
         # Mejores4 equipos
         top_4_teams = sorted_teams_by_games[:4]
@@ -526,12 +564,11 @@ async def ucl(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 f'SG: {equipo_stats_ucl["GoalsDifferential"]} | Pts: {equipo_stats_ucl["Points"]}\n\n'
             )
 
-        
         await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text, parse_mode=ParseMode.MARKDOWN)
 
 
-#Partidos_UCL
-from datetime import datetime, timedelta
+# Partidos_UCL
+
 
 async def partidos_ucl(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     current_datetime = datetime.now()
@@ -541,16 +578,18 @@ async def partidos_ucl(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     for i, match in enumerate(parse_json_ucl):
         match_datetime_str = match.get('DateTime')
         if match_datetime_str:
-            match_datetime = datetime.strptime(match_datetime_str, '%Y-%m-%dT%H:%M:%S')
+            match_datetime = datetime.strptime(
+                match_datetime_str, '%Y-%m-%dT%H:%M:%S')
             if match_datetime > current_datetime:
-                
+
                 match_datetime += timedelta(hours=1)
 
                 equipo1 = match['AwayTeamName']
                 equipo2 = match['HomeTeamName']
                 fecha_partido = match_datetime.strftime('%d/%m/%Y %H:%M')
 
-                next_matches_info.append(f"Partido: {equipo1} 🆚 {equipo2}\nFecha del partido: {fecha_partido} ⏰")
+                next_matches_info.append(
+                    f"Partido: {equipo1} 🆚 {equipo2}\nFecha del partido: {fecha_partido} ⏰")
 
                 if len(next_matches_info) == 10:
                     break
@@ -563,7 +602,7 @@ async def partidos_ucl(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         await context.bot.send_message(chat_id=update.effective_chat.id, text="No hay partidos programados en el futuro cercano.")
 
 
-#Resultados_UCL
+# Resultados_UCL
 async def resultados_ucl(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     current_datetime = datetime.now()
 
@@ -572,7 +611,8 @@ async def resultados_ucl(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     for i, match in enumerate(parse_json_ucl):
         match_datetime_str = match.get('DateTime')
         if match_datetime_str:
-            match_datetime = datetime.strptime(match_datetime_str, '%Y-%m-%dT%H:%M:%S')
+            match_datetime = datetime.strptime(
+                match_datetime_str, '%Y-%m-%dT%H:%M:%S')
             if match_datetime > current_datetime:
                 next_match_index = i
                 break
@@ -591,18 +631,18 @@ async def resultados_ucl(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                 last_10_games_info.append(game_info)
 
         # Informacion sobre todos los partidos
-        message_text = "\n".join(last_10_games_info[::-1])  # Lista al reves para mostrar los ultimos partidos en primero
+        # Lista al reves para mostrar los ultimos partidos en primero
+        message_text = "\n".join(last_10_games_info[::-1])
         await context.bot.send_message(chat_id=update.effective_chat.id, text="🥅 ⚽️ Últimos resultados de la UEFA Champions League ⚽️ 🥅")
         await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
 
 
-
-#Pichichi_UCL
+# Pichichi_UCL
 
 async def pichichi_ucl(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    pichichis_ucl = sorted(parse_json_jugadores_ucl[0]['PlayerSeasons'], key=lambda x: x['Goals'], reverse=True)[:10]
+    pichichis_ucl = sorted(
+        parse_json_jugadores_ucl[0]['PlayerSeasons'], key=lambda x: x['Goals'], reverse=True)[:10]
 
-    
     message_text = ""
 
     for rank, jugador in enumerate(pichichis_ucl, start=1):
@@ -610,18 +650,17 @@ async def pichichi_ucl(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         equipo_pichichi_ucl = jugador['Team']
         goles_pichichi_ucl = jugador['Goals']
 
-        
-        message_text +=f'{rank}º {jugador_pichichi_ucl}\nEquipo: {equipo_pichichi_ucl}\nGoles: {goles_pichichi_ucl}\n\n'
+        message_text += f'{rank}º {jugador_pichichi_ucl}\nEquipo: {equipo_pichichi_ucl}\nGoles: {goles_pichichi_ucl}\n\n'
 
     # enviar mensage
     await context.bot.send_message(chat_id=update.effective_chat.id, text="⚽️ Lista de Goleadores de la UEFA Champions ⚽️")
     await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
 
 
-#Asistencias_UCL
+# Asistencias_UCL
 async def asistencias_ucl(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    jugador_assists_ucl = sorted(parse_json_jugadores_ucl[0]['PlayerSeasons'], key=lambda x: x['Assists'], reverse=True)[:10]
-
+    jugador_assists_ucl = sorted(
+        parse_json_jugadores_ucl[0]['PlayerSeasons'], key=lambda x: x['Assists'], reverse=True)[:10]
 
     message_text = ""
 
@@ -630,30 +669,28 @@ async def asistencias_ucl(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         equipo_asistencias_ucl = assists_ucl['Team']
         asistencias_asistencias_ucl = assists_ucl['Assists']
 
-        
         message_text += f'{rank}º {jugador_asistencias_ucl}\nEquipo: {equipo_asistencias_ucl}\nAsistencias: {asistencias_asistencias_ucl}\n\n'
 
     await context.bot.send_message(chat_id=update.effective_chat.id, text="🤵 Lista de Asistentes de la UCL 🤵")
     await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
 
 
-#Lesionados_UCL
-import random
+# Lesionados_UCL
+
 
 async def lesionados_ucl(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    random_lesionado_ucl= random.choice(parse_json_API_lesionados_ucl)
+    random_lesionado_ucl = random.choice(parse_json_API_lesionados_ucl)
 
     lesionados_nombre_ucl = random_lesionado_ucl["CommonName"]
     lesionados_fecha_str_ucl = random_lesionado_ucl["InjuryStartDate"]
-    lesionados_fecha_ucl = datetime.strptime(lesionados_fecha_str_ucl, '%Y-%m-%dT%H:%M:%S')
+    lesionados_fecha_ucl = datetime.strptime(
+        lesionados_fecha_str_ucl, '%Y-%m-%dT%H:%M:%S')
     lesionados_fecha_formatted_ucl = lesionados_fecha_ucl.strftime('%d/%m/%Y')
     lesionados_foto_ucl = random_lesionado_ucl["PhotoUrl"]
 
     message_text = f'🚑 Jugadores Lesionados 🚑 \n\nJugador : {lesionados_nombre_ucl}\nFecha de lesión : {lesionados_fecha_formatted_ucl}\nFoto del Jugador : {lesionados_foto_ucl}\n\nQuieres ver otro jugador? /lesionados'
 
     await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
-    
-
 
 
 #
@@ -662,106 +699,109 @@ async def lesionados_ucl(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 if __name__ == '__main__':
-    application = ApplicationBuilder().token('6985250842:AAFVfBqd-vKh0UqI6myyeV4GoSr5Yojq8vk').build()
+    application = ApplicationBuilder().token(
+        '6985250842:AAFVfBqd-vKh0UqI6myyeV4GoSr5Yojq8vk').build()
 
-    #Hola
+    # Hola
     hola_handler = CommandHandler('hola', hola)
     application.add_handler(hola_handler)
 
-    #Comandos
+    # Comandos
     comandos_handler = CommandHandler('comandos', comandos)
     application.add_handler(comandos_handler)
 
-    #Fecha
+    # Fecha
     fecha_handler = CommandHandler('fecha', fecha)
     application.add_handler(fecha_handler)
 
     ## LA LIGA ##
 
-    #Partido
+    # Partido
     partidos_handler = CommandHandler('partidos', partidos)
     application.add_handler(partidos_handler)
 
-    #Pichichi
+    # Pichichi
     pichichi_handler = CommandHandler('pichichi', pichichi)
     application.add_handler(pichichi_handler)
 
-    #laliga
+    # laliga
     laliga_handler = CommandHandler('laliga', laliga)
     application.add_handler(laliga_handler)
 
-    #Resultados
+    # Resultados
     resultados_handler = CommandHandler('resultados', resultados)
     application.add_handler(resultados_handler)
 
-    #Asistencias
+    # Asistencias
     asistencias_handler = CommandHandler('asistencias', asistencias)
     application.add_handler(asistencias_handler)
 
-    #Lesionados
+    # Lesionados
     lesionados_handler = CommandHandler('lesionados', lesionados)
     application.add_handler(lesionados_handler)
 
-        ## PREMIER LEAGUE ##
+    ## PREMIER LEAGUE ##
 
-    #Premier
+    # Premier
     premier_handler = CommandHandler('premier', premier)
     application.add_handler(premier_handler)
-    
-    #Resultados_Premier
-    resultados_premier_handler = CommandHandler('resultados_premier', resultados_premier)
+
+    # Resultados_Premier
+    resultados_premier_handler = CommandHandler(
+        'resultados_premier', resultados_premier)
     application.add_handler(resultados_premier_handler)
 
-    #Partido_Premier
-    partidos_premier_handler = CommandHandler('partidos_premier', partidos_premier)
+    # Partido_Premier
+    partidos_premier_handler = CommandHandler(
+        'partidos_premier', partidos_premier)
     application.add_handler(partidos_premier_handler)
- 
-    #Pichichi_Premier
-    pichichi_premier_handler = CommandHandler('pichichi_premier', pichichi_premier)
+
+    # Pichichi_Premier
+    pichichi_premier_handler = CommandHandler(
+        'pichichi_premier', pichichi_premier)
     application.add_handler(pichichi_premier_handler)
 
-    #Asistencias_Premier
-    asistencias_premier_handler = CommandHandler('asistencias_premier', asistencias_premier)
+    # Asistencias_Premier
+    asistencias_premier_handler = CommandHandler(
+        'asistencias_premier', asistencias_premier)
     application.add_handler(asistencias_premier_handler)
 
-    #Lesionados_Premier
-    lesionados_premier_handler = CommandHandler('lesionados_premier', lesionados_premier)
+    # Lesionados_Premier
+    lesionados_premier_handler = CommandHandler(
+        'lesionados_premier', lesionados_premier)
     application.add_handler(lesionados_premier_handler)
-
 
     ## CHAMPIONS LEAGUE ##
 
-    #UCL
+    # UCL
     ucl_handler = CommandHandler('ucl', ucl)
     application.add_handler(ucl_handler)
 
-    #Partido_UCL
+    # Partido_UCL
     partidos_ucl_handler = CommandHandler('partidos_ucl', partidos_ucl)
     application.add_handler(partidos_ucl_handler)
 
-    #Resultados_UCL
+    # Resultados_UCL
     resultados_ucl_handler = CommandHandler('resultados_ucl', resultados_ucl)
     application.add_handler(resultados_ucl_handler)
 
-    #Pichichi_UCL
+    # Pichichi_UCL
     pichichi_ucl_handler = CommandHandler('pichichi_ucl', pichichi_ucl)
     application.add_handler(pichichi_ucl_handler)
 
-    #Asistencias_UCL
-    asistencias_ucl_handler = CommandHandler('asistencias_ucl', asistencias_ucl)
+    # Asistencias_UCL
+    asistencias_ucl_handler = CommandHandler(
+        'asistencias_ucl', asistencias_ucl)
     application.add_handler(asistencias_ucl_handler)
 
-    #Lesionados_UCL
+    # Lesionados_UCL
     lesionados_ucl_handler = CommandHandler('lesionados_ucl', lesionados_ucl)
     application.add_handler(lesionados_ucl_handler)
-    
-
 
     ## ODDS ##
 
-    #Odds
+    # Odds
     odds_handler = CommandHandler('odds', odds)
     application.add_handler(odds_handler)
-
 
     application.run_polling()
