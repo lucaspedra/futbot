@@ -182,13 +182,29 @@ async def hola(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def comandos(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="🆘  Lista de Comandos  🆘\n\n⚙️ Básicos ⚙️\n/hola\n/comandos\n/fecha\n\n🇪🇸 La Liga 🇪🇸\n/laliga\n/partidos\n/resultados\n/pichichi\n/asistencias\n/lesionados\n\n🇬🇧 Premier League 🇬🇧\n/premier\n/partidos_premier\n/resultados_premier\n/pichichi_premier\n/asistencias_premier\n/lesionados_premier\n\n🇪🇺 UEFA Champions League 🇪🇺\n/ucl\n/partidos_ucl\n/resultados_ucl\n/pichichi_ucl\n/asistencias_ucl\n/lesionados_ucl\n\n🎰 Odds 🎰\n/odds")
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="🆘  Lista de Comandos  🆘\n\n⚙️ Básicos ⚙️\n/hola\n/comandos\n/fecha\n\n🇪🇸 La Liga 🇪🇸\n/comandos_laliga\n\n🇬🇧 Premier League 🇬🇧\n/comandos_premier\n\n🇪🇺 UEFA Champions League 🇪🇺\n/comandos_ucl\n\n🎰 Odds 🎰\n/odds")
 
     # Fecha
 
 
 async def fecha(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="La fecha de hoy es: " + fechahoy)
+
+# Comandos LaLiga
+
+async def comandos_laliga(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="🇪🇸 La Liga 🇪🇸\n\n/laliga\n/partidos\n/resultados\n/pichichi\n/asistencias\n/lesionados")
+
+# Comandos Premier
+
+async def comandos_premier(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="🇬🇧 Premier League 🇬🇧\n\n/premier\n/partidos_premier\n/resultados_premier\n/pichichi_premier\n/asistencias_premier\n/lesionados_premier")
+
+
+# Comandos UCL
+
+async def comandos_ucl(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="🇪🇺 UEFA Champions League 🇪🇺\n\n/ucl\n/partidos_ucl\n/resultados_ucl\n/pichichi_ucl\n/asistencias_ucl\n/lesionados_ucl")
 
     # Partidos
 
@@ -709,6 +725,18 @@ if __name__ == '__main__':
     # Comandos
     comandos_handler = CommandHandler('comandos', comandos)
     application.add_handler(comandos_handler)
+
+     # Comandos LaLiga
+    comandos_laliga_handler = CommandHandler('comandos_laliga', comandos_laliga)
+    application.add_handler(comandos_laliga_handler)
+
+    # Comandos Premier
+    comandos_premier_handler = CommandHandler('comandos_premier', comandos_premier)
+    application.add_handler(comandos_premier_handler)
+
+    # Comandos UCL
+    comandos_ucl_handler = CommandHandler('comandos_ucl', comandos_ucl)
+    application.add_handler(comandos_ucl_handler)
 
     # Fecha
     fecha_handler = CommandHandler('fecha', fecha)
