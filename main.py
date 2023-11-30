@@ -61,7 +61,7 @@ data_stats_equipos_mejorada = equipos_stats_API_mejorada.text
 parse_json_stats_equipos_mejorada = json.loads(data_stats_equipos_mejorada)
 
 # API odds
-API_odds = requests.get('https://api.the-odds-api.com/v4/sports/soccer/odds/?apiKey=78dd1b7f48ef9c786df6a6add154c41e&regions=eu&markets=h2h')
+API_odds = requests.get('https://api.the-odds-api.com/v4/sports/soccer/odds/?apiKey=42f8f5ed110ff61d7b7eae0a3360b535&regions=eu&markets=h2h')
 data_API_odds = API_odds.text
 parse_json_API_odds = json.loads(data_API_odds)
 
