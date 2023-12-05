@@ -19,6 +19,8 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackContext
 from telegram.constants import ParseMode
 from datetime import datetime
+import os
+from googleapiclient.discovery import build
 
 # API's
 import requests
@@ -1323,6 +1325,61 @@ async def lesionados_ucl(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
 
 
+
+## Mejores Momentos del Partido
+
+#YouTube API
+
+async def search_youtube(api_key, query, max_results=3):
+    youtube = build('youtube', 'v3', developerKey=api_key)
+
+    search_response = youtube.search().list(
+        q=query,
+        part='id,snippet',
+        type='video',
+        maxResults=max_results
+    ).execute()
+
+    videos = []
+    for search_result in search_response.get('items', []):
+        video_id = search_result['id']['videoId']
+        video_title = search_result['snippet']['title']
+        videos.append((video_title, video_id))
+
+    return videos
+
+
+## Pedir al usuario datos para hacer la busca 
+
+async def mejoresmomentos(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # Ask the user for input
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="Por favor, introduce palabras clave adicionales para la búsqueda (si las hay):")
+
+    # Wait for user input
+    user_input = None
+    while user_input is None:
+        user_input = context.message.text
+
+    # Set your YouTube API key here
+    api_key = "AIzaSyDO1d-jkmRBVNIvsUqT1ghh4U04nSC4BzY"
+
+    # Perform the YouTube search
+    search_query = f"{user_input} mejores momentos"
+    search_results = await search_youtube(api_key, search_query, max_results=3)
+
+    # Display the results
+    if search_results:
+        message_text = "Mejores momentos encontrados:\n"
+        for rank, (video_title, video_id) in enumerate(search_results, start=1):
+            message_text += f"{rank} - {video_title}\n"
+            message_text += f"Ver en YouTube: https://www.youtube.com/watch?v={video_id}\n\n"
+    else:
+        message_text = "No se encontraron mejores momentos."
+
+    # Send the results as a message
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=message_text)
+
+
 #
 # Comando introducido por el usuario
 #
@@ -1552,5 +1609,12 @@ if __name__ == '__main__':
     # Odds
     odds_handler = CommandHandler('odds', odds)
     application.add_handler(odds_handler)
+
+
+    ## Mejores Momentos ##
+
+    # Mejores Momentos del Partido
+    mejoresmomentos_handler = CommandHandler('mejoresmomentos', mejoresmomentos)
+    application.add_handler(mejoresmomentos_handler)
 
     application.run_polling()
